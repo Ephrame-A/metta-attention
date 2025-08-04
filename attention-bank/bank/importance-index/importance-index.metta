@@ -83,7 +83,7 @@
 (: update (-> hyperon::space::DynSpace Atom))
 (= (update $space)
     (let* (
-            ($collectedContents (getAllAtomsInBins))
+            ($collectedContents (typespaceAtoms-with-bin))
             ($max (getAllMaxSTI $collectedContents))
             ($min (getAllMinSTI $collectedContents))
             ($exitCondition (> $min $max))
@@ -122,31 +122,17 @@
         (
             ($oldBin (importanceBin $oldSTI))
             ($newBin (importanceBin $newSTI))
-            ($relocate 
-                (let $result 
-                    (relocateAtom $oldBin $newBin $atom)
-                    (if $result ("Importance Updated") ("Importance Not Updated")))
-            )
+            ($x (case (getValueType $atom)
+                      (((AV $s $l $v) ($s $l $v))
+                        (((STV $x $y) (AV $s $l $v)) ($s $l $v))
+                      )))
+            (($sti $lti $vlti) $x)
         )
-        $relocate
+        (setAv $atom ($sti $lti $vlti))
     )
 )
 
 
-(: relocateAtom (-> Number Number Symbol Bool))
-(= (relocateAtom $oldBin $newBin $atom)
-   (let* (($res1 (removeAtom $oldBin $atom))
-         ($res2 (insertAtom $newBin $atom)))
-   
-      
-
-     (if (or (== $res1 ("Atom already exists")) (== $res1 ("Bin is empty")))
-       False
-       (== (collapse(index-atom $res2 0)) ("Atom Inserted"))
-      )
-   )
-    
-)
 
 (: pred (-> Symbol Number Number Bool))
 (= (pred $x $lower $higher) (
