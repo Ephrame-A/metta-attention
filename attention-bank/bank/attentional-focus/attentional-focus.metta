@@ -259,7 +259,7 @@
 (= (getRandomAtomNotInAF)
    (let*
        (
-           ($allAtoms  (getAllAtomsInBins))
+           ($allAtoms  (typespaceAtoms-with-bin))
            ($filteredAtoms (filter $allAtoms atomIsNotInAF))
        )
        (if (== $filteredAtoms ())
