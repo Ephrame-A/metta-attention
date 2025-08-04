@@ -1,6 +1,5 @@
 
-; this function take atoms from atombin space and return atoms found inside the largest bin index
-; it uses Max helper function to get the largest bin index then it returns the atom found in that bin index
+; this function take atoms from typespace and return atoms found inside the largest bin index
 
 (: getMaxContent (-> List))
 (= (getMaxContent)
@@ -21,8 +20,7 @@
 )
 
 
-; this function take atoms from atombin space and return atoms found inside the smallest bin index
-; it uses Min helper function to get the smallest bin index then it returns the atom found in that bin index
+; this function take atoms from typespace and return atoms found inside the smallest bin index
 
 (: getMinContent (-> List))
 (= (getMinContent)
@@ -42,7 +40,6 @@
     )
 )
 ; this function takes a bin number and return the number of atoms found in that bin
-; it used size helper function to count the number of atoms found in the bin
 (= (getSize $binNumber)
     (let* (
         ($atoms (collapse (match (typespace) ($p $v $binNumber) $p)))
@@ -52,7 +49,7 @@
 )
 
 ;Function: binSize
-;Description: Calculates the total number of atoms across all bins in &atombin space.
+;Description: Calculates the total number of atoms across all bins in &typespace.
 ;             It retrieves all bin indices and computes the cumulative sum of their sizes.
 ;Parameters: None.
 ;Returns: The total number of atoms across all bins.

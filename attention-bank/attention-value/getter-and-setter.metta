@@ -23,17 +23,18 @@
     (let* (
         ($oldSTI (getSti $pattern))
         ($oldLTI (getLti $pattern))
-        ($updatedBin (importanceBin $sti))
+        ($updatedBin (importanceBin $sti)) ;returns the bin index
         ($res (if (== (getValueType $pattern) %Undefined%)
-                   (add-atom &typeSpace ($pattern ((AV $sti $lti $vlti)) (Bin $updatedBin)))
+                   (add-atom &typeSpace ($pattern (AV $sti $lti $vlti) (Bin $updatedBin)))
                    (let* 
-                        (
+                        (   
                            ($stv (getStv $pattern))
                            ($value (match &typeSpace ($pattern $_) ($pattern $_)))
                            (() (remove-atom &typeSpace $value))
+                           
                         )
                       (if (== $stv %Undefined%)
-                          (add-atom &typeSpace ($pattern ((AV $sti $lti $vlti)) (Bin $updatedBin)))
+                          (add-atom &typeSpace ($pattern (AV $sti $lti $vlti) (Bin $updatedBin)))
                           (add-atom &typeSpace ($pattern ($stv (AV $sti $lti $vlti)) (Bin $updatedBin))))
                    )
                 )
@@ -113,13 +114,12 @@
 	(let $a 
 		(collapse (match &typeSpace ($pattern $value $bin) $value))
 		(if (== $a ())
-			%Undefined%
             (let $y 
                 (collapse (match &typeSpace ($pattern $value) $value))
 			    (if (== $y ())
                     %undefined%
                     (car-atom $a)
-            ))
+            )) (car-atom $a)
 		)
 	)
 )
