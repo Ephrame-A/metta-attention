@@ -1,5 +1,14 @@
 !(bind! &typeSpace (new-space))
 
+(: GroupSize Number)
+(= (GroupSize) 8)
+
+(: GroupNum Number)
+(= (GroupNum) 12)
+
+(= (typespace)
+    &typespace
+)
 ; setAv function accepts a pattern (it could be a symbol or an expression) and attention values(contain STI, LTI and VLTI)
 ; and set the attention value as a type for the pattern. 
 ; then the pattern will be stored with attention value type in a space called typespace.
@@ -8,15 +17,15 @@
 ; we can get the type of the symbol animal using the function getValueType an it returns (AV 399 400 1).
 ; which means the atom called Animal now has STI = 399, LTI = 400 and VLTI = 1
 
+
 (: setAv (-> Atom (Number Number Number) Atom))
 (= (setAv $pattern ($sti $lti $vlti))
     (let* (
-
         ($oldSTI (getSti $pattern))
         ($oldLTI (getLti $pattern))
-        ($updateimpo (updateImportance (AtomBin) $pattern $oldSTI $sti))
+        ($updatedBin (importanceBin $sti))
         ($res (if (== (getValueType $pattern) %Undefined%)
-                   (add-atom &typeSpace ($pattern (AV $sti $lti $vlti)))
+                   (add-atom &typeSpace ($pattern ((AV $sti $lti $vlti)) (Bin $updatedBin)))
                    (let* 
                         (
                            ($stv (getStv $pattern))
@@ -24,8 +33,8 @@
                            (() (remove-atom &typeSpace $value))
                         )
                       (if (== $stv %Undefined%)
-                          (add-atom &typeSpace ($pattern (AV $sti $lti $vlti)))
-                          (add-atom &typeSpace ($pattern ($stv (AV $sti $lti $vlti)))))
+                          (add-atom &typeSpace ($pattern ((AV $sti $lti $vlti)) (Bin $updatedBin)))
+                          (add-atom &typeSpace ($pattern ($stv (AV $sti $lti $vlti)) (Bin $updatedBin))))
                    )
                 )
            )
@@ -36,7 +45,7 @@
            ($fundsLTI (getAttentionBank fundsLTI))
            ($newstifund (+ $fundsSTI $stiDiff))
            ($newltifund (+ $fundsLTI $ltiDiff))
-           ($updater (attentionValueChanged $pattern $newstifund $newltifund))  ; Update attentional focus and global paremeter
+        ;    ($updater (attentionValueChanged $pattern $newstifund $newltifund))  ; Update attentional focus and global paremeter
     )
    ()
 ))
@@ -45,7 +54,7 @@
  ; returns the attention value attached to the atom.
  
  ; i.e !(getAv A)  output: (AV 400 400 1)
-
+;this function is not clear
 
 (= (getAv $pattern)
         (case (getValueType $pattern)
@@ -83,7 +92,7 @@
     
 
  ; getStv function accepts a pattern/node and returns the simple truth
- ; value attaced to the pattern/node
+ ; value attached to the pattern/node
  ;
  ; i.e !(getStv A)  output: (STV 0.1 0.9)
 
@@ -102,10 +111,15 @@
 
 (= (getValueType $pattern) 
 	(let $a 
-		(collapse (match &typeSpace ($pattern $value) $value))
+		(collapse (match &typeSpace ($pattern $value $bin) $value))
 		(if (== $a ())
 			%Undefined%
-			(car-atom $a)
+            (let $y 
+                (collapse (match &typeSpace ($pattern $value) $value))
+			    (if (== $y ())
+                    %undefined%
+                    (car-atom $a)
+            ))
 		)
 	)
 )
@@ -138,7 +152,9 @@
 (= (getSti $pattern)
     (case (getAv $pattern)
         ((%Undefined% 0)
-        ((AV $sti $lti $vlti) $sti))
+        ((AV $sti $lti $vlti) $sti)
+        (($stv (AV $sti $lti $vlti)) $sti)
+        )
     )
 
 )
@@ -151,7 +167,8 @@
 (= (getLti $pattern)
     (case (getAv $pattern)
         ((%Undefined% 0)
-        ((AV $sti $lti $vlti) $lti))
+        ((AV $sti $lti $vlti) $lti)
+        (($stv (AV $sti $lti $vlti)) $lti))
     )
 )
 
@@ -162,7 +179,8 @@
 (= (getVlti $pattern)
     (case (getAv $pattern)
         ((%Undefined% 0)
-        ((AV $sti $lti $vlti) $vlti)
+        ((AV $sti $lti $vlti) $sti)
+        (($stv (AV $sti $lti $vlti)) $vlti)
         )
     )
 
@@ -279,3 +297,9 @@
         (size-atom $atoms)
     )
 )
+
+(= (typespaceAtoms-with-bin)
+    (let ($p $val) (collapse (match &typespace ($pattern $v $bin) $pattern)) $p)
+)
+
+
