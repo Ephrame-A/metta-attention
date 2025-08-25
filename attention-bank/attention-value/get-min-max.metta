@@ -60,7 +60,7 @@
 (: binSize (-> Number))
 (= (binSize)
    (let* (
-      ($typespace (typespace))
+      ($typespace (TypeSpace))
       ($indices ())
       ($binsSize (getAllAtomsWithBins))
     )

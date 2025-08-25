@@ -1,5 +1,5 @@
 !(bind! &typeSpace (new-space))
-(= (typespace)
+(= (TypeSpace)
     &typeSpace
 )
 ; setAv function accepts a pattern (it could be a symbol or an expression) and attention values(contain STI, LTI and VLTI)
@@ -280,8 +280,8 @@
 (: getAtomsByBin (-> Number Expression))
 (= (getAtomsByBin $binNumber)
     (let* (
-            ($withSTV (collapse (match (typespace) ($patt ($s $av (Bin $binNumber))) $patt)) )
-            ($nostv (collapse (match (typespace) ($patt ($av (Bin $binNumber))) $patt)))
+            ($withSTV (collapse (match (TypeSpace) ($patt ($s $av (Bin $binNumber))) $patt)) )
+            ($nostv (collapse (match (TypeSpace) ($patt ($av (Bin $binNumber))) $patt)))
             ) (union-atom $withSTV $nostv))
 )
 
@@ -289,8 +289,8 @@
 (: getAllAtomsWithBins (-> Expression))
 (= (getAllAtomsWithBins)
     (let* ( 
-            ($withSTV (collapse (match (typespace) ($patt ((STV $s) $av $bin)) $patt)) )
-            ($nostv (collapse (match (typespace) ($patt ($av $bin)) $patt)))
+            ($withSTV (collapse (match (TypeSpace) ($patt ((STV $s) $av $bin)) $patt)) )
+            ($nostv (collapse (match (TypeSpace) ($patt ($av $bin)) $patt)))
         )   
         (union-atom $withSTV $nostv)
     )
