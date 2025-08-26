@@ -1,5 +1,7 @@
 !(bind! &typeSpace (new-space))
-
+(= (TypeSpace)
+    &typeSpace
+)
 ; setAv function accepts a pattern (it could be a symbol or an expression) and attention values(contain STI, LTI and VLTI)
 ; and set the attention value as a type for the pattern. 
 ; then the pattern will be stored with attention value type in a space called typespace.
@@ -11,12 +13,11 @@
 (: setAv (-> Atom (Number Number Number) Atom))
 (= (setAv $pattern ($sti $lti $vlti))
     (let* (
-
-        ($oldSTI (getSti $pattern))
-        ($oldLTI (getLti $pattern))
-        ($updateimpo (updateImportance (AtomBin) $pattern $oldSTI $sti))
+        ($oldSti (getSti $pattern))
+        ($oldLti (getLti $pattern))
+        ($bin    (importanceBin $sti))
         ($res (if (== (getValueType $pattern) %Undefined%)
-                   (add-atom &typeSpace ($pattern (AV $sti $lti $vlti)))
+                (add-atom &typeSpace ($pattern ((AV $sti $lti $vlti) (Bin $bin)) ))   
                    (let* 
                         (
                            ($stv (getStv $pattern))
@@ -24,14 +25,14 @@
                            (() (remove-atom &typeSpace $value))
                         )
                       (if (== $stv %Undefined%)
-                          (add-atom &typeSpace ($pattern (AV $sti $lti $vlti)))
-                          (add-atom &typeSpace ($pattern ($stv (AV $sti $lti $vlti)))))
+                          (add-atom &typeSpace ($pattern ((AV $sti $lti $vlti) (Bin $bin)) ))
+                          (add-atom &typeSpace ($pattern ($stv (AV $sti $lti $vlti) (Bin $bin)) )))
                    )
                 )
            )
 
-           ($stiDiff (- $oldSTI $sti))
-           ($ltiDiff (-  $oldLTI $lti))
+           ($stiDiff (- $oldSti $sti))
+           ($ltiDiff (- $oldLti $lti))
            ($fundsSTI (getAttentionParam FUNDS_STI))
            ($fundsLTI (getAttentionParam FUNDS_LTI))
            ($newstifund (+ $fundsSTI $stiDiff))
@@ -41,63 +42,26 @@
    ()
 ))
 
- ; getAv function accepts a pattern/atom (it could be a symbol or an expression) and 
- ; returns the attention value attached to the atom.
- 
- ; i.e !(getAv A)  output: (AV 400 400 1)
-
-
-(= (getAv $pattern)
-        (case (getValueType $pattern)
-          (
-            ( (AV $a $b $c) (AV $a $b $c))
-            ( ((STV $a $b) (AV $x $y $z)) (AV $x $y $z))
-            ($else %Undefined%)
-            )
-        )
-    
-)
-
-
  ; set_stv function accepts a pattern/node with the truthvalues
  ; and set the simple truth value to the pattern/node.
- ;
  ; i.e !(set_stv A (0.1 0.9))
- ;
-
- (: setStv (-> Atom (Number Number) Atom))
+(: setStv (-> Atom (Number Number) Atom))
 (= (setStv $pattern ($mean $conf))
     (if (== (getValueType $pattern) %Undefined%)
         (add-atom &typeSpace ($pattern (STV $mean $conf)))
          (let* 
             (
                 ($av (getAv $pattern))
+                ($bin (getBin $pattern))
                 ($value (match &typeSpace ($pattern $_) ($pattern $_)))
                 (() (remove-atom &typeSpace $value))
               )
             (if (== $av %Undefined%)
                 (add-atom &typeSpace ($pattern (STV $mean $conf)))
-                (add-atom &typeSpace ($pattern ( (STV $mean $conf) $av)))))
+                (add-atom &typeSpace ($pattern ( (STV $mean $conf) $av (Bin $bin))))))
     )
 )
-    
 
- ; getStv function accepts a pattern/node and returns the simple truth
- ; value attaced to the pattern/node
- ;
- ; i.e !(getStv A)  output: (STV 0.1 0.9)
-
-
-(= (getStv $pattern)
-        (case (getValueType $pattern)
-          (
-            ( (STV $a $b) (STV $a $b))
-            ( ((STV $a $b) (AV $x $y $z)) (STV $a $b))
-            ($else %Undefined%)
-            )
-        )
-
-)
 
 
 (= (getValueType $pattern) 
@@ -109,6 +73,51 @@
 		)
 	)
 )
+
+ ; getAv function accepts a pattern/atom (it could be a symbol or an expression) and 
+ ; returns the attention value attached to the atom.
+ 
+ ; i.e !(getAv A)  output: (AV 400 400 1)
+
+
+ (= (getAv $pattern)
+ (case (getValueType $pattern)
+   (
+     ( ((AV $a $b $c) (Bin $bin)) (AV $a $b $c))
+     ( ((STV $a $b) (AV $x $y $z) (Bin $bin)) (AV $x $y $z))
+     ($else %Undefined%)
+     )
+ )
+
+)
+
+(= (getBin $pattern)
+(case (getValueType $pattern)
+  (
+    ( ((AV $a $b $c) (Bin $bin)) $bin)
+    ( ((STV $a $b) (AV $x $y $z) (Bin $bin)) $bin)
+    ($else %Undefined%)
+    )
+)
+
+)
+ ; getStv function accepts a pattern/node and returns the simple truth
+ ; value attaced to the pattern/node
+ ;
+ ; i.e !(getStv A)  output: (STV 0.1 0.9)
+
+
+(= (getStv $pattern)
+        (case (getValueType $pattern)
+          (
+            ( (STV $a $b) (STV $a $b))
+            ( ((STV $a $b) (AV $x $y $z) (Bin $bin)) (STV $a $b))
+            ($else %Undefined%)
+            )
+        )
+
+)
+
 
 ; getMean retrieves mean from a pattern
 ; i.e !(getMean A)  output: 1 
@@ -174,10 +183,10 @@
 ;;and set the Sti to the pattern/node.
 ; i.e !(setSti A 500)
 (: setSti (-> Atom Number Atom)) 
-(= (setSti $pattern $newSTI)
+(= (setSti $pattern $newSti)
     (case (getAv $pattern)
-        ((%Undefined% (setAv $pattern ($newSTI 0 0)))
-        ((AV $sti $lti $vlti) (setAv $pattern ($newSTI $lti $vlti))))
+        ((%Undefined% (setAv $pattern ($newSti 0 0)))
+        ((AV $sti $lti $vlti) (setAv $pattern ($newSti $lti $vlti))))
     )
 )
 
@@ -237,14 +246,9 @@
 	)
 )
 
-; (: TypeSpace (-> Grounded))
-(= (TypeSpace)
-	&typeSpace
-)
-
 
 ;; used to return all atoms that have an stv or an AV in typespace
-(: getAtomsInTypeSpace-helper (-> List))
+(: getAtomsInTypeSpace-helper (-> Expression))
 (= (getAtomsInTypeSpace-helper) 
 	(let $a 
 		(get-atoms &typeSpace)
@@ -256,11 +260,11 @@
 	)
 )
 
-; Description : getAtomsInTypeSpace is a function that returns a list of patterns in typespace
+; Description : getAtomsInTypeSpace is a function that returns Expression of patterns in typespace
 ; params:
 ;	None
-; return: List of patterns in the typeSpace without their types in and is more deterministic than matching
-(: getAtomsInTypeSpace (-> List))
+; return: Expression of patterns in the typeSpace without their types in and is more deterministic than matching
+(: getAtomsInTypeSpace (-> Expression))
 (= (getAtomsInTypeSpace) 
 	(collapse (getAtomsInTypeSpace-helper))
 )
@@ -271,4 +275,39 @@
         (getAtomsInTypeSpace)
         (size-atom $atoms)
     )
+)
+; finds all atoms that is found in the specific bin
+(: getAtomsByBin (-> Number Expression))
+(= (getAtomsByBin $binNumber)
+    (let* (
+            ($withSTV (collapse (match (TypeSpace) ($patt ($s $av (Bin $binNumber))) $patt)) )
+            ($nostv (collapse (match (TypeSpace) ($patt ($av (Bin $binNumber))) $patt)))
+            ) (union-atom $withSTV $nostv))
+)
+
+; return all atoms that have AV/bin number 
+(: getAllAtomsWithBins (-> Expression))
+(= (getAllAtomsWithBins)
+    (let* ( 
+            ($withSTV (collapse (match (TypeSpace) ($patt ((STV $s) $av $bin)) $patt)) )
+            ($nostv (collapse (match (TypeSpace) ($patt ($av $bin)) $patt)))
+        )   
+        (union-atom $withSTV $nostv)
+    )
+)
+
+; Recursively collects all atoms from bins indexed between $lower and $higher, inclusive.
+(: getContent (-> Number Number Expression))
+(= (getContent $lower $higher)
+  (if (> $lower $higher)
+    ()  
+    (let*
+      (
+        ($vals (getAtomsByBin $lower))
+
+        ($rest (getContent (+ $lower 1) $higher))
+      )
+      (union-atom $vals $rest)
+    )
+  )
 )
