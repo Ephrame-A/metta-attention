@@ -31,9 +31,6 @@
 	)
 )
 
-(= (collapseBin $space)
-	(collapse (let $a (match $space ($x $y) $y) (superpose $a)))
-)
 
 ; Description : a function to filter atoms that are below a the forgetThreshold
 ; params :
