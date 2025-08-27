@@ -4,7 +4,7 @@
 
 !(import! &self metta-attention:attention-bank:bank:attention-bank)
 !(import! &self metta-attention:attention-bank:bank:importance-index:importance-index)
-!(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
+; !(import! &self metta-attention:attention-bank:bank:atom-bins:atombins)
 
 !(import! &self metta-attention:attention-bank:bank:attentional-focus:attentional-focus)
 

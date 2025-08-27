@@ -5,4 +5,4 @@
 !(import! &self attention-bank:bank:attentional-focus:attentional-focus)
 !(import! &self attention-bank:bank:importance-index:importance-index)
 
-!(forgettingAgent-Run (typeSpace))
+!(forgettingAgent-Run (TypeSpace))
