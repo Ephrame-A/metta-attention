@@ -289,7 +289,7 @@
 (: getAllAtomsWithBins (-> Expression))
 (= (getAllAtomsWithBins)
     (let* ( 
-            ($withSTV (collapse (match (TypeSpace) ($patt ((STV $s) $av $bin)) $patt)) )
+            ($withSTV (collapse (match (TypeSpace) ($patt ((STV $m $c) $av $bin)) $patt)) )
             ($nostv (collapse (match (TypeSpace) ($patt ($av $bin)) $patt)))
         )   
         (union-atom $withSTV $nostv)
