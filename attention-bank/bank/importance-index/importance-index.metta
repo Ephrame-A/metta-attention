@@ -11,13 +11,12 @@
 ; - getMinBinContents - return atoms found in min bin index
 ; - bin_size - return the total bin size
 
-(: GroupSize Number)
+(: GroupSize (-> Number))
 (= (GroupSize) 8)
-
-(: GroupNum Number)
+(: GroupNum (-> Number))
 (= (GroupNum) 12)
 
-(: ImportanceIndexSize Number)
+(: ImportanceIndexSize (-> Number))
 (= (ImportanceIndexSize) 104)
 
 ;Function: importanceBin
@@ -48,7 +47,7 @@
         (let*
           (
             ($imp (trunc-math (/ (- $impo_int $groupSize) $groupSize)))
-            ($i (findGroup $imp 0 0))
+            ($i  (call (findGroup $imp 0 0)))
             ($num (- $i 1))
             ($temp (ceil-math (/ $impo_int (pow-math 2 (- $i 1)))))
             ($ad (- $groupSize $temp))
@@ -77,10 +76,10 @@
 ;if min_sti > max_sti: min_sti = max_sti
 ;_min_sti = min_sti, max_sti = max_sti
 
-(: update (-> hyperon::space::DynSpace Atom))
+; (: update (-> hyperon::space::DynSpace Atom))
 (= (update $space)
     (let* (
-            ($collectedContents (getAllAtomsWithBins))
+            ($collectedContents (call (getAllAtomsWithBins)))
             ($max (getAllMaxSTI $collectedContents))
             ($min (getAllMinSTI $collectedContents))
             ($exitCondition (> $min $max))
@@ -112,8 +111,9 @@
    (if (== $contents ())
         () 
         (collapse 
-          (let* (($x (superpose $contents)))
-            (if (and (>=  (getSti $x) $lower) (<= (getSti $x) $higher)) 
+          (let 
+            $x (superpose $contents)
+            (if (and (>=  (call (getSti $x)) $lower) (<= (call (getSti $x)) $higher)) 
                  $x
                 () 
             )
@@ -125,17 +125,17 @@
 )
 
 ; Retrieves atoms from bins whose STI values fallin lowerbound and upperBound. it utilizes filterContents function.
-(: getHandleSet (-> Number Number Expression))
+; (: getHandleSet (-> Number Number Expression))
 (= (getHandleSet $lowerBound $upperBound)
    (if (or (< $lowerBound 0) (< $upperBound 0))
      ()
      (let*
        (
-        ($lowerBin (importanceBin $lowerBound))
-        ($upperBin (importanceBin $upperBound))
-        ($allContents (getContent $lowerBin $upperBin))
+        ($lowerBin (call (importanceBin $lowerBound)))
+        ($upperBin (call (importanceBin $upperBound)))
+        ($allContents (call (getContent $lowerBin $upperBin)))
         ($filteredContents  (filterContents $allContents $lowerBound $upperBound))
-        ($finalContents  (filter $filteredContents notEmpty))
+        ($finalContents  (call (filter $filteredContents notEmpty)))
         
       )
      $finalContents 
@@ -155,7 +155,7 @@
 )
 
 (: getMaxSTI (-> Number))
-(= (getMaxSTI) (let $recentVal (RecentVal) (match $recentVal (recent_max $_) $_)))
+(= (getMaxSTI) (let $recentVal (RecentVal) (match $recentVal (recent_max $val) $val)))
 
 (: getMinSTI (-> Bool Number))
 (= (getMinSTI $avg)
@@ -203,10 +203,10 @@
 ;                     If False, uses value_max and value_min.
 ;           $clip: If True, restricts the normalized value to the range [0,1].
 ;Returns: The normalized STI value, possibly clipped between 0 and 1.
-(: getNormalisedZeroToOneSTI (-> Atom Bool Bool Number))
+; (: getNormalisedZeroToOneSTI (-> Atom Bool Bool Number))
 (= (getNormalisedZeroToOneSTI $atom $average $clip)
    (let*
-       (   ($sti  (getSti $atom))
+       (   ($sti  (call (getSti $atom)))
            ($maxSTI (getMaxSTI $average))
            ($minSTI (getMinSTI $average))
            ($normaliser (- $maxSTI $minSTI))
@@ -234,12 +234,12 @@
 ;Parameters:
 ;          $atom: The atom whose STI is being normalized.
 ;Returns: A normalized STI value
-(: getNormalisedSTI (-> Atom Number))
+; (: getNormalisedSTI (-> Atom Number))
 (= (getNormalisedSTI $atom)
    (let*
        (
-          ($atoms (getAfAtoms))
-           ($s (getSti $atom))
+          ($atoms (call (getAfAtoms)))
+           ($s (call (getSti $atom)))
            ($afMax  (getAllMaxSTI $atoms))
            ($normaliser
                (if (> $s $afMax)
@@ -266,12 +266,12 @@
 ;          $average: If True, uses recent_max/recent_min for normalization; otherwise, uses value_max/value_min.
 ;          $clip: If True, restricts the normalized value to the range [-1, 1].
 ;Returns: A normalized STI value, possibly clipped to the range [-1, 1].
-(: getNormalisedSTI (-> Atom Bool Bool Number))
+; (: getNormalisedSTI (-> Atom Bool Bool Number))
 (= (getNormalisedSTI $atom $average $clip)
    (let*
        (
-           ($atoms (getAfAtoms))
-           ($s (getSti $atom))
+           ($atoms (call (getAfAtoms)))
+           ($s (call (getSti $atom)))
            ($afMax  (getAllMaxSTI $atoms))
            ($diff (- $s $afMax))
            ($sum (+ $s $afMax)) 

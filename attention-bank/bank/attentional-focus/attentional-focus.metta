@@ -14,11 +14,8 @@
             ($afSize (getAttentionParam MAX_AF_SIZE))
             ($allAtoms (getAllAtomsWithBins))
         ) 
-        (if (not (<= $afSize (size-atom $allAtoms)))
-                (let $wrote
-                    (write_csv_wrapper $allAtoms)
-                    $allAtoms
-                )
+        (if (>= $afSize (size-atom $allAtoms))
+                $allAtoms
                 (getAfAtomsHelper $afSize)
         )
     )
@@ -132,9 +129,9 @@
 ;             $atom: The atom to check.
 ;Returns: True if the atom is in attentional focus list, otherwise False.
 
-(: isAtomInAf (-> Symbol Bool))
+; (: isAtomInAf (-> Symbol Bool))
 (= (isAtomInAf $atom)
-    (let $x (getAllMinSTI (getAfAtoms)) (< (getSti $x) (getSti $atom)))
+    (let $x (getAllMinSTI (getAfAtoms)) (< $x (getSti $atom)))
 )
 ; Function: getIncomingSetByType
 ; Description: Retrieves the set of incoming links of a specific type for a given atom
@@ -143,7 +140,7 @@
 ;   $atom: The atom for which to find incoming links.
 ;   $type: The type of link to consider.
 ; Returns: A list of incoming links of the specified type.
-(: getIncomingSetByType (-> Atom Type Expression))
+; (: getIncomingSetByType (-> Atom Type Expression))
 (= (getIncomingSetByType $atom $type)
     (let $list 
         (getAfAtoms)
@@ -154,7 +151,7 @@
                     ($y (unify ($type $elem $atom) $x ($type $elem $atom) ()))
                     ($l (unify ($type $atom $z) $x ($type $atom $z) ()))
                 ) 
-                (if (and (== $y ()) (== $l ())) Empty (union-atom $y $l))
+                (if (and (== $y ()) (== $l ())) (empty) (union-atom $y $l))
             )
         )
     )
