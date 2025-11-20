@@ -25,32 +25,32 @@
 ; ################### Testing #################################
 
 ; Test case 01: Testing attentionalFocusSize asserting it returns correct number of atom in focus
-!(assertEqual (getIncomingSetByType Animal Hebbianlink) ((Hebbianlink (Hebbianlink Cat Human) Animal)))
+!(test (getIncomingSetByType Animal Hebbianlink) ((Hebbianlink (Hebbianlink Cat Human) Animal)))
 
 ; ; ; Test case 02: Testing atomIsInAF asserting it returns True for a given atom in AF
 
-!(assertEqual (isAtomInAf C) True)
+!(test (isAtomInAf C) True)
 
 ; ; Testing same case for Link
 
-!(assertEqual (isAtomInAf (EvaluationLink a b)) True)
-!(assertEqual (isAtomInAf (Hebbianlink (Hebbianlink Cat Human) Animal)) True)
+!(test (isAtomInAf (EvaluationLink a b)) True)
+!(test (isAtomInAf (Hebbianlink (Hebbianlink Cat Human) Animal)) True)
 
 
 ; Test case 03: Testin atomIsInAF asserting it return False foor a give atom not in AF
 
-!(assertEqual (isAtomInAf Z) False)
+!(test (isAtomInAf Z) False)
 
 ; ; Test case 04: Testing getLowestStiAtomInAF returns an atom with lowest Sti
-; !(assertEqual (getLowestStiAtomInAF) c)
+; !(test (getLowestStiAtomInAF) c)
 
 
 ; ; ; Test case 05: Testing updateAttentionalFocus by adding new atom to attentional focus
 
 !(setAv G (300.0 400.0 500.0))
-!(assertEqual (isAtomInAf G) True)
+!(test (isAtomInAf G) True)
 
-!(assertEqual 
+!(test 
     (getAfAtoms) 
         (D B F A (EvaluationLink a b) C (Hebbianlink (Hebbianlink Cat Human) Animal) G)
     ) 
@@ -59,7 +59,7 @@
 ;; Test case 06: Testing updateAttentionalFocus by changing values of saved atom
 !(setAv G (15.0 25.0 35.0))
 
-!(assertEqual 
+!(test 
     (getAfAtoms) 
         (G D B F A (EvaluationLink a b) C (Hebbianlink (Hebbianlink Cat Human) Animal))
 )
@@ -69,7 +69,8 @@
 ; !(assertEqual (getAtomList) (a d c A B C D F (EvaluationLink a b) (Hebbianlink (Hebbianlink Cat Human) Animal) G))
 
 ; ; Test case 09: Testing getRandomAtomNotInAF assure that only one atom is returned
-!(let $a (collapse (getRandomAtomNotInAF)) (assertEqual (isAtomInAf $a) False))
+!(let $a (collapse (getRandomAtomNotInAF)) (test (isAtomInAf $a) False))
 
 ; Test case 10: Testing getAfMaxSTI
-!(assertEqual (getAllMaxSTI (getAfAtoms)) 200.0)
+!(test (getAllMaxSTI (getAfAtoms)) 200.0)
+!(getAfAtoms)

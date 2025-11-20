@@ -80,8 +80,8 @@
 (= (update $space)
     (let* (
             ($collectedContents (call (getAllAtomsWithBins)))
-            ($max (getAllMaxSTI $collectedContents))
-            ($min (getAllMinSTI $collectedContents))
+            ($max (call (getAllMaxSTI $collectedContents)))
+            ($min (call (getAllMinSTI $collectedContents)))
             ($exitCondition (> $min $max))
         )
          (if $exitCondition

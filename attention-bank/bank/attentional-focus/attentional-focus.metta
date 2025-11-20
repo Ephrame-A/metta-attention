@@ -16,7 +16,10 @@
         ) 
         (if (>= $afSize (size-atom $allAtoms))
                 $allAtoms
+                (if (not (<= $afSize (call (size-atom $allAtoms))))
+                $allAtoms
                 (getAfAtomsHelper $afSize)
+        )
         )
     )
 )

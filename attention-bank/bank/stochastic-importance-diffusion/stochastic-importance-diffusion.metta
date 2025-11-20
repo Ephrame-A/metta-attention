@@ -32,7 +32,8 @@
             (let* (
                 ($time (timeTime)) 
                 ($g (getSize $index))
-                ($val (/ 1 (- $time $firstTime)))
+                ($diff (- $time $firstTime))
+                ($val (if (== $diff 0.0) (eval (/ 1 0.0001)) (eval (/ 1 $diff))))
             )
                 (add-atom &atomBinInfo 
                     ($index ((count 1) (index $index) (_size $g) (update_rate $val) (last_update $time)))
@@ -51,7 +52,7 @@
                     ($count (+ $cntVal 1))
                     ($now (timeTime))
                     ($newSec (- $now $lastUpdateVal))
-                    ($newUpdateRate (/ $count $newSec))
+                    ($newUpdateRate (if (== $newSec 0.0) (/ 1 0.0001) (/ $count $newSec)))
                     ($newSize (getSize $index)))
                     ((add-atom &atomBinInfo 
                         ($index ((count $count) (index $index) (_size $newSize) (update_rate $newUpdateRate) (last_update $now)))))
