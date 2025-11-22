@@ -20,21 +20,26 @@
 
 
 
-
+!(updateBin a)
 !(match &atomBinInfo (1 $_) $_)
 !((py-call time.sleep) 1)
 
 !(updateBin a)
 !(match &atomBinInfo (1 $_) $_)
 !((py-call time.sleep) 3)
+
 !(updateBin a)
 !(match &atomBinInfo (1 $_) $_)
-!(add-atom (AtomBinInfo) xyz)
-!(let $x (AtomBinInfo) (get-atoms $x))
+!((py-call time.sleep) 1)
+
 !(updateBin a)
 !(match &atomBinInfo (1 $_) $_)
+!((py-call time.sleep) 1)
+
 !(updateBin a)
 !(match &atomBinInfo (1 $_) $_)
+!((py-call time.sleep) 1)
+
 !(updateBin a)
 !(match &atomBinInfo (1.0 $_) $_)
 !(importanceBin (getSti a))
