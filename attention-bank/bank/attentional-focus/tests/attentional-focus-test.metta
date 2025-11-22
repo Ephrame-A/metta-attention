@@ -73,4 +73,4 @@
 
 ; Test case 10: Testing getAfMaxSTI
 !(test (getAllMaxSTI (getAfAtoms)) 200.0)
-!(getAfAtoms)
+
