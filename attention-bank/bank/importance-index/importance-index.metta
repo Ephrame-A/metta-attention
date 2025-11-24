@@ -95,8 +95,8 @@
 (= (updateGlobalMaxAndMinSTI $min $max)
     (let*
       (
-       ($firstRes (updateMin $min))
-       ($secondRes (updateMax $max))
+       ($firstRes (call (updateMin $min)))
+       ($secondRes (call (updateMax $max)))
       )
       (trace! (updated) ("Updated"))
 
@@ -212,7 +212,7 @@
            ($normaliser (- $maxSTI $minSTI))
            ($diff (- $sti $minSTI))
           
-           ($value (if (== $normaliser 0)
+           ($value (if (or (== $normaliser 0.0) (== $normaliser 0))
                       0.0
                       (/ $diff $normaliser)))
             ($minim  (min-atom ($value 1.0)))
@@ -248,7 +248,7 @@
                )
             )
        )
-       (if (== $normaliser 0)
+       (if (== $normaliser 0.0)
            0.0
            (/ $s $normaliser)
        )

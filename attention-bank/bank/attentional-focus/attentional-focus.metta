@@ -16,11 +16,9 @@
         ) 
         (if (>= $afSize (size-atom $allAtoms))
                 $allAtoms
-                (if (not (<= $afSize (call (size-atom $allAtoms))))
-                $allAtoms
                 (getAfAtomsHelper $afSize)
         )
-        )
+        
     )
 )
 
@@ -90,7 +88,7 @@
 ; Returns: 
 ;         - atom that found in typespace but not in af
 
-(: getRandomAtomNotInAF (-> Symbol))
+; (: getRandomAtomNotInAF (-> Symbol))
 (= (getRandomAtomNotInAF)
     (let* 
         ( 
@@ -102,7 +100,7 @@
         (if (== $size 0)
             ()
             (let $rand 
-                (random-int 0 $size)
+                (random-int 0 (- $size 1))
                 (index-atom $outsideAf $rand)
             )
         )
