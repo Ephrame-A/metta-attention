@@ -5,6 +5,7 @@
 !(import! &self ../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
 !(import! &self ../../../../metta-attention/attention-bank/utilities/helper-functions)
 !(import! &self ../../../../metta-attention/attention-bank/bank/attention-bank)
+!(import! &self ../../../../metta-attention/attention-bank/utilities/recentVal)
 ; Test Case 01: Testing Empty atomBin
 ; Ensure getMaxContent and getMinContent return empty lists when no atoms are present
  !(test (getMaxContent (TypeSpace)) ())

@@ -5,7 +5,7 @@
 !(import! &self ../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
 !(import! &self ../../../../metta-attention/attention-bank/utilities/helper-functions)
 !(import! &self ../../../../metta-attention/attention-bank/bank/attention-bank)
-
+!(import! &self ../../../../metta-attention/attention-bank/utilities/recentVal)
 
 ; Test case 01: testing attention value setter(setAv) function for symbol atom type and 
 

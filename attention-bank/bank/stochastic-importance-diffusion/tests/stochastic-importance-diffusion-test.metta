@@ -10,7 +10,7 @@
 
 !(import! &self ../../../../../metta-attention/attention-bank/bank/stochastic-importance-diffusion/stochastic-importance-diffusion)
 !(import! &self ../../../../../metta-attention/attention-bank/bank/attention-bank)
-
+!(import! &self ../../../../../metta-attention/attention-bank/utilities/recentVal)
 ; This sets the STI of a to 1 which will give bin index of 1
 !(setAv a (1.0 1.0 1.0))
 
@@ -22,23 +22,20 @@
 
 !(updateBin a)
 !(match &atomBinInfo (1 $_) $_)
-!((py-call time.sleep) 1)
+!((py-call time.sleep) 1.0)
 
 !(updateBin a)
 !(match &atomBinInfo (1 $_) $_)
-!((py-call time.sleep) 3)
+!((py-call time.sleep) 3.0)
 
 !(updateBin a)
 !(match &atomBinInfo (1 $_) $_)
-!((py-call time.sleep) 1)
 
 !(updateBin a)
 !(match &atomBinInfo (1 $_) $_)
-!((py-call time.sleep) 1)
 
 !(updateBin a)
 !(match &atomBinInfo (1 $_) $_)
-!((py-call time.sleep) 1)
 
 !(updateBin a)
 !(match &atomBinInfo (1.0 $_) $_)
