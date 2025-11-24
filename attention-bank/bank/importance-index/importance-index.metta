@@ -146,7 +146,7 @@
 
 (: getMaxSTI (-> Bool Number))
 (= (getMaxSTI $avg) 
-   (let $recentVal (RecentVal)
+   (let $recentVal (call (RecentVal))
     (if $avg
       (match $recentVal (recent_max $_) $_)
       (match $recentVal (value_max $_) $_)
@@ -155,11 +155,11 @@
 )
 
 (: getMaxSTI (-> Number))
-(= (getMaxSTI) (let $recentVal (RecentVal) (match $recentVal (recent_max $val) $val)))
+(= (getMaxSTI) (let $recentVal (call (RecentVal)) (match $recentVal (recent_max $val) $val)))
 
 (: getMinSTI (-> Bool Number))
 (= (getMinSTI $avg)
-   (let $recentVal (RecentVal)
+   (let $recentVal (call (RecentVal))
     (if $avg
       (match $recentVal (recent_min $_) $_)
       (match $recentVal (value_min $_) $_)
@@ -168,7 +168,7 @@
 )
 
 (: getMinSTI (-> Number))
-(= (getMinSTI) (let $recentVal (RecentVal) (match $recentVal (recent_min $_) $_)))
+(= (getMinSTI) (let $recentVal (call (RecentVal)) (match $recentVal (recent_min $_) $_)))
 
 ; (: getMaxSTI (-> Bool Number))
 ; (= (getMaxSTI $avg) 
