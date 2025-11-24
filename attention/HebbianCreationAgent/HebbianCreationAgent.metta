@@ -1,4 +1,4 @@
-!(bind! localToFarLinks 10) ;Ratio of local links to far links
+(= (localToFarLinks) 10) ;Ratio of local links to far links
 
 ;Function: HebbianCreationAgent-Run
 ;Description: This function creates hebbian links between atoms in the attentional
@@ -14,7 +14,7 @@
 ;   $space3: resolves to newAtomInAV where atoms that are new to attentionalFocus are stored
 ;Returns: empty
 
-(: HebbianCreationAgent-Run(-> Grounded empty))
+; (: HebbianCreationAgent-Run(-> Grounded empty))
 (= (HebbianCreationAgent-Run $space)
     ; if the attentional focus is empty no work is done
     (if ( == (attentionalFocusSize)  0)
@@ -32,7 +32,7 @@
                             ($existingAsSourceHS  (getTargetNeighbors $source ASYMMETRIC_HEBBIAN_LINK $space)) ;;need to check if we should use source or sourceAtom
                             ($needToBeTarget  (subtraction-atom $afAtoms $existingAsSourceHS))
                             ($count (size-atom $needToBeTarget))
-                            ($farLinks (/ $count localToFarLinks )) ;round by default
+                            ($farLinks (floor-math (/ $count (localToFarLinks)))) ;round by default
                             ($incomingSet (getIncomingSetByType $source HEBBIAN_LINK)) ;should I add other types of hebbian links?
                             ($maxLinkNum (getAttentionParam MAX_LINK_NUM))
                         )
@@ -114,7 +114,7 @@
 ;Parameters: $source- Atom, $farLinks- Number of links to be created
 ;Returns: empty
 
-(:addFromOutSideAF(-> Atom Number Empty))
+; (:addFromOutSideAF(-> Atom Number Empty))
 ( = (addFromOutSideAF  $source $farLinks)
     (if ( == $farLinks 0 )
         ()
@@ -152,7 +152,7 @@
 ;Parameters: $source- Atom, $target- Atom
 ;Returns: empty
 
-(: addHebbian (-> Atom Atom Empty))
+; (: addHebbian (-> Atom Atom Empty))
 (= (addHebbian $source $target)
     (let $link (ASYMMETRIC_HEBBIAN_LINK $source $target)
         (setStv $link (0.5 0.1))
