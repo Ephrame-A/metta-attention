@@ -7,6 +7,8 @@
 
 ; (: diffuseAtom (-> Atom Grounded Symbol Atom))
 (= (diffuseAtom $atom $space $AForWA)
+    (if (== (collapse (incidentAtoms $atom $space)) ()) 
+    (empty) 
     (let*
         (
             ($incidentAtoms (collapse (incidentAtoms $atom $space)))
@@ -23,8 +25,8 @@
             ($probabilityVectorHebbianAjacent (collapse (probabilityVectorHebbianAjacent $atom $hebbianAdjacentAtoms)))
             ($combProbabilityVector (combineIncidentAdjacentVectors $probabilityVectorIncident $probabilityVectorHebbianAjacent))
             ($totaldiffusionAmount (if (== $AForWA AF)
-                                       (calculateDiffusionAmount $atom)
-                                       (calculateDiffusionAmountWA $atom)
+                                       (call (calculateDiffusionAmount $atom))
+                                       (call (calculateDiffusionAmountWA $atom))
                                     )
             )
             (($atomToReceive $stiGiven)
@@ -43,7 +45,7 @@
         ($atom $atomToReceive $stiGiven)
     )
 )
-
+)
 ;; This function is used to remove ASYMMETRIC_HEBBIAN_LINK that might be 
 ;; in the as an outgoing link (non-deterministic)
 ;; Parameters: $oset: outgoing atoms of a link
@@ -70,7 +72,7 @@
 ;;            $space: The space that incomingSets will be taken from
 ;; Return : The incident atoms of the given atom
 
-(: incidentAtoms (-> Atom Grounded Atom))
+; (: incidentAtoms (-> Atom Grounded Atom))
 (= (incidentAtoms $atom $space)
     (let*
         (
@@ -105,12 +107,15 @@
 
 (: probabilityVectorIncident (-> Atom Atom))
 (= (probabilityVectorIncident $incidentAtoms)
-    (let*
+    (if (== $incidentAtoms ())
+        (empty)
+        (let*
         (
             ($diffusionAmount (/ 1.0 (size-atom $incidentAtoms)))
             ($result ((superpose $incidentAtoms) $diffusionAmount))
         )
         $result
+        )
     )
 )
 
@@ -121,15 +126,18 @@
 
 (: probabilityVectorHebbianAjacent (-> Atom Atom Atom))
 (= (probabilityVectorHebbianAjacent $atom $hebbianAdjacentAtoms)
-    (let*
-        (
-            ($diffusionAvailable 1.0)
-            ($atomCount (size-atom $hebbianAdjacentAtoms))
-            ($maxAllocation (/ $diffusionAvailable $atomCount))
-            ($target (superpose $hebbianAdjacentAtoms))
-            ($diffusionAmount (* $maxAllocation (calculateHebbianDiffusionPercentation (ASYMMETRIC_HEBBIAN_LINK $atom $target))))
+    (if (== $hebbianAdjacentAtoms ())
+        (empty)
+        (let*
+            (
+                ($diffusionAvailable 1.0)
+                ($atomCount (size-atom $hebbianAdjacentAtoms))
+                ($maxAllocation (/ $diffusionAvailable $atomCount))
+                ($target (superpose $hebbianAdjacentAtoms))
+                ($diffusionAmount (* $maxAllocation (calculateHebbianDiffusionPercentation (ASYMMETRIC_HEBBIAN_LINK $atom $target))))
+            )
+            ($target $diffusionAmount)
         )
-        ($target $diffusionAmount)
     )
 )
 
@@ -140,18 +148,20 @@
 
 (: combineIncidentAdjacentVectors (-> Atom Atom Atom))
 (= (combineIncidentAdjacentVectors $incidentVector $adjacentVector)
-    (let*
-        (
-            ($diffusionAvailable 1.0)
-            ($hebbianDiffusionAvailable (* (getAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE) $diffusionAvailable))
-            ($hebbianMaximumLinkAllocation (/ $hebbianDiffusionAvailable (size-atom $adjacentVector)))
-            ($hebbianProportionSTI (collapse (hebbianProportionSTI $adjacentVector $hebbianMaximumLinkAllocation)))
-            ($hebbianDiffusionUsed (hebbianDiffusionUsed $hebbianProportionSTI))
-            ($resulttwo (collapse (incidentProportionSTI $incidentVector $hebbianDiffusionUsed)))
-            ($finalResult (concatTuple $hebbianProportionSTI $resulttwo))
-        )
-        $finalResult
-    )
+    (if (== $adjacentVector ())
+        (empty)
+        (let*
+            (
+                ($diffusionAvailable 1.0)
+                ($hebbianDiffusionAvailable (* (getAttentionParam HEBBIAN_MAX_ALLOCATION_PERCENTAGE) $diffusionAvailable))
+                ($hebbianMaximumLinkAllocation (/ $hebbianDiffusionAvailable (size-atom $adjacentVector)))
+                ($hebbianProportionSTI (collapse (hebbianProportionSTI $adjacentVector $hebbianMaximumLinkAllocation)))
+                ($hebbianDiffusionUsed (hebbianDiffusionUsed $hebbianProportionSTI))
+                ($resulttwo (collapse (incidentProportionSTI $incidentVector $hebbianDiffusionUsed)))
+                ($finalResult (concatTuple $hebbianProportionSTI $resulttwo))
+            )
+            $finalResult
+        ))
 )
 
 ;; This function will return the hebbian proportion of the STI
@@ -248,7 +258,7 @@
 ;;            $type: The type that will be used to find the incoming set
 ;; Return : The incoming set of the atom
 
-(: getAllIncomingSets (-> Atom Grounded List))
+; (: getAllIncomingSets (-> Atom Grounded List))
 (= (getAllIncomingSets $atom $space)
     (superpose
         (
@@ -264,7 +274,7 @@
 ;;            $value: The value that will be used to trade STI
 ;; Return : The STI value of source and target
 
-(: tradeSti (-> Atom Atom Number %Undefined%))
+; (: tradeSti (-> Atom Atom Number %Undefined%))
 (= (tradeSti $source $target $value)
     (if (or (== $source ()) (== $target ()))
         ()
