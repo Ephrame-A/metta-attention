@@ -10,7 +10,7 @@
 
 
 !(import! &self ../../../../../PeTTa/lib/lib_he)
-!(import! &self lib/lib_spaces)
+!(import! &self ../../../../../PeTTa/lib/lib_spaces)
 !(import! &self ../../../../../metta-attention/attention/AttentionParam)
 !(import! &self ../../../../../metta-attention/attention-bank/utilities/helper-functions)
 !(import! &self ../../../../../metta-attention/attention-bank/attention-value/getter-and-setter)
@@ -21,41 +21,22 @@
 !(import! &self ../../../../../metta-attention/attention/Neighbors)
 !(import! &self ../../../../../metta-attention/attention/RentCollectionAgent/RentCollectionBaseAgent/RentCollectionBaseAgent)
 !(import! &self ../../../../../metta-attention/attention/RentCollectionAgent/AFRentCollectionAgent/AFRentCollectionAgent)
+!(bind! &node (new-space))
+!(import! &node ../../../ImportanceDiffusionAgent/AFImportanceDiffusionAgent/tests/nodes)
 
-
-!(stimulate b 3000.0)
-!(stimulate c 1500.0)
-!(stimulate d 290.0)
-!(stimulate (Hebbianlink a b) 50.0)
-!(stimulate (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)) 5.0)
-
-
-!(test  (getSti b) 60000.0)
-!(test (getSti c)  30000.0)
-!(test (getSti d) 2900.0)
-!(test (getSti (Hebbianlink a b)) 355.0)
-!(test  (getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 33.725)
-
-; Run rent collection in a loop until enough time has passed
-; !(hello here)
-; (= (timeT) (py-call (time.time)))
-; !(timeT)
+!(updateAttentionParam MAX_AF_SIZE 50)
+!(match &node ($x) (stimulate $x 80))
 !(AFRentCollectionAgent-run)
-; !(hello)
-
-;Sleep for the computed time to match C++ behavior
-!(py-call (time.sleep (/ 2.0 6.0)))
-; !(sleep (/ 1.0 6.0))
-!(AFRentCollectionAgent-run)
-
-;the sti value of the atoms must be lower and Python’s time.time() is only precise up to ~1e-6 or less,
-;and sleep in MeTTa via Python is also not deterministic.that's why i used the approximation
-!(getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b)))
-
-!(getSti b)
-!(test (approxEqual (getSti (Hebbianlink (Hebbianlink c d) (Hebbianlink c b))) 30.9 1.6) True)
-!(test (approxEqual (getSti b) 59998.7 2.0) True)
-!(test (approxEqual (getSti c) 29998.7 2.0) True)
-!(test (approxEqual (getSti d) 2898.71 2.0) True)
-!(test (approxEqual (getSti (Hebbianlink a b)) 353.725 2.0) True)
-
+!(py-call (time.sleep 2))
+(= (run-cycles $num $time)
+    (if (== $num 0) (running time is (- (py-call (time.time)) $time))
+        (let* (
+            ($x (collapse (AFRentCollectionAgent-run))) ($s (py-call (time.sleep 1)))
+            )
+        (run-cycles (- $num 1) $time))
+    )
+)
+!(getAv node_0)
+!(run-cycles 10 (py-call (time.time)))
+!(getAv node_0)
+!(rent with 50af and 10 cycle)

@@ -9,11 +9,12 @@
 !(import! &self ../../../../metta-attention/attention-bank/utilities/recentVal)
 !(import! &self ../../../../metta-attention/attention/Neighbors)
 !(import! &self ../../../../metta-attention/attention/HebbianCreationAgent/HebbianCreationAgent)
-
-!(updateAttentionParam MAX_AF_SIZE 4.0)
+!(bind! &d (new-space))
+!(import! &d data)
+!(updateAttentionParam MAX_AF_SIZE 100.0)
 ; !(bind! 900.0.0 900.0.0)
 ; Populate the AtomSpace with the example atoms
-
+!(match &d ($pattern ($prob $conf)) (setStv $pattern ($prob $conf)))
 !(setStv Kermit (0.001 900.0.0))
 
 !(setStv Frog (0.01 900.0.0))
@@ -24,6 +25,7 @@
 
 !(setStv slimy (0.01 900.0.0))
 
+!(setStv slimyAnimal (0.01 900.0.0))
 ; Create the links
 
 !(setStv (INHERITANCE_LINK Kermit Frog) (0.9 900.0.0))
@@ -36,6 +38,7 @@
 
 !(setStv (EVALUATION_LINK animal slimy) (0.9 900.0))
 
+!(setStv (EVALUATION_LINK animal slimyAnimal) (0.9 900.0))
 ; Populate the AtomSpace with additional dummy atoms
 
 !(setStv Dummy1 (0.001 900.0))
@@ -50,27 +53,32 @@
 
 !(setStv (INHERITANCE_LINK Dummy2 Dummy3) (0.9 900.0.0))
 
-; Stimulate the atoms in the AttentionalFocus with a stimulus of 200
 
+; Stimulate the atoms in the AttentionalFocus with a stimulus of 200
+(= (runner $time)
+        (let $x (collapse (HebbianCreationAgent-Run (TypeSpace)))
+        (running time is (- (py-call (time.time)) $time))
+    )
+)
 !(stimulate Kermit 200.0)
 !(stimulate Frog 200.0)
 !(stimulate Animal 200.0)
 !(stimulate alive 200.0)
-!(stimulate (EVALUATION_LINK animal slimy) 100.0)
-
-!(HebbianCreationAgent-Run (TypeSpace))
-
-;;Confirm that only n*(n-1) = 12 AsymmetricHebbianLinks were formed,
-;;indicating that none incorrectly include "slimy" nor the dummy atoms
+!(stimulate slimyAnimal 200.0)
+!(match &d ($pattern $val) (stimulate $pattern 200.0))
+!(runner (py-call (time.time)))
+;Confirm that 105*(105-1) = 10920 AsymmetricHebbianLinks were formed,
+;indicating that none incorrectly include "slimy" nor the dummy atoms
 !(let $afAtoms
     (getAfAtoms)
-    (test (size-atom $afAtoms) 4)
+    (test (size-atom $afAtoms) 105)
 )
+
 ; !(collapse (match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK $x $y) $value) (ASYMMETRIC_HEBBIAN_LINK $x $y)))
 
 !(test   
     (let $atoms (collapse 
                     (match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK $x $y) $value) 
                             (ASYMMETRIC_HEBBIAN_LINK $x $y))) (size-atom $atoms))
-    12
+    10920
 )

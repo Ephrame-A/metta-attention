@@ -10,80 +10,42 @@
 !(import! &self ../../../../../metta-attention/attention/Neighbors)
 !(import! &self ../../../../../metta-attention/attention/ImportanceDiffusionAgent/ImportanceDiffusionBase/ImportanceDiffusionBase)
 !(import! &self ../../../../../metta-attention/attention/ImportanceDiffusionAgent/AFImportanceDiffusionAgent/AFImportanceDiffusionAgent)
+!(bind! &data (new-space))
+!(bind! &node (new-space))
+!(import! &data file)
+!(import! &node nodes)
+!(updateAttentionParam MAX_AF_SIZE 50.0)
+
+;; Set TV for links and stimulate all nodes in the chain
+!(match &data (INHERITANCE_LINK $s $t) 
+    (setStv (INHERITANCE_LINK $s $t) (0.5 0.8))
+)
+!(match &node ($x) (stimulate $x 50))
+;; Run 50 cycles to match C++ cycles
+(= (run-cycles $num $time)
+    (if (== $num 0) (running time is (- (py-call (time.time)) $time))
+        (let $x (collapse (AFImportanceDiffusionAgent-Run (TypeSpace)))
+        (run-cycles (- $num 1) $time))
+    )
+)
+
+!(getAv node_0)
+!(run-cycles 50 (py-call (time.time)))
 
 
 
-;;This are the same tests as the c++
 
-;########################## Stimlating atoms so that they enter AF #############################
-!(stimulate source 500)
-!(stimulate target1 400)
-!(stimulate target2 400)
-!(stimulate target3 400)
-!(stimulate target4 400)
-!(stimulate target5 400)
-!(stimulate target6 0)
+;; Verification: Check sample nodes' STI
+!(getSti node_0)
+!(getSti node_50)
+!(getSti node_500)
 
-;########################## Creating links between atoms #############################
-
-!(setStv (ASYMMETRIC_HEBBIAN_LINK source target3) (0.6 0.1))
-!(setStv (ASYMMETRIC_HEBBIAN_LINK source target4) (0.5 0.1))
-
-!(setStv (INHERITANCE_LINK target3 source) (0 1))
-!(setStv (INHERITANCE_LINK source target4) (0 1))
-!(setStv (ASYMMETRIC_HEBBIAN_LINK target1 target2) (0 1))
-
-!(setStv (ASYMMETRIC_HEBBIAN_LINK target2 target3) (0 1))
-!(setStv (INHERITANCE_LINK source target5) (0 1))
-!(setStv (INHERITANCE_LINK source target6) (0 1))
-!(setStv (INHERITANCE_LINK (ASYMMETRIC_HEBBIAN_LINK source target4) target8) (0 1))
-!(setStv (INHERITANCE_LINK target3 (ASYMMETRIC_HEBBIAN_LINK sorce target4)) (0 1))
-
-
-
-;########################## Running the AF Importance Diffusion Agent #############################
-!(AFImportanceDiffusionAgent-Run (TypeSpace))
-;########################## Testing the STI values #############################
-!(test (getSti source) 6000.0)
-!(test (getSti target1) 8000.0)
-!(test (getSti target2) 8000.0)
-!(test (getSti target3) 4803.0)
-!(test (getSti target4) 4802.5)
-!(test (getSti target5) 4800.0)
-!(test (getSti target6) 0.0)
-!(test (getSti target7) 0.0)
-!(test (getSti target8) 0.0)
-
-!(test (getSti (HEBBIAN_LINK source target1)) 0.0)
-!(test (getSti (HEBBIAN_LINK source target2)) 0.0)
-!(test (getSti (ASYMMETRIC_HEBBIAN_LINK source target3)) 0.0)
-!(test (getSti (INHERITANCE_LINK source target4)) 4198.625)
-!(test (getSti (ASYMMETRIC_HEBBIAN_LINK target1 target2)) 0.0)
-!(test (getSti (INHERITANCE_LINK source target5)) 4198.625)
-!(test (getSti (INHERITANCE_LINK source target6)) 998.625)
-!(test (getSti (INHERITANCE_LINK target3 source)) 2598.625)
-!(test (getSti (ASYMMETRIC_HEBBIAN_LINK target2 target3)) 0.0)
-!(test (getSti (INHERITANCE_LINK target3 (ASYMMETRIC_HEBBIAN_LINK sorce target4))) 1600.0)
-
-; ;########################## Running the AF Importance Diffusion Agent #############################
-!(AFImportanceDiffusionAgent-Run (TypeSpace))
-; ;########################## Testing the STI values #############################
-!(test (getSti source) 5998.9)
-!(test (getSti target1) 8000.0)
-!(test (getSti target2) 8000.0)
-!(test (getSti target3) 4043.325)
-!(test (getSti target4) 3722.725)
-!(test (getSti target5) 3719.725)
-!(test (getSti target6) 199.72500000000002)
-!(test (getSti target7) 0.0)
-!(test (getSti target8) 0.0)
-
-!(test (getSti (HEBBIAN_LINK source target1)) 0.0)
-!(test (getSti (HEBBIAN_LINK source target2)) 0.0)
-!(test (getSti (ASYMMETRIC_HEBBIAN_LINK source target3)) 0.0)
-!(test (getSti (INHERITANCE_LINK source target4)) 5039.35)
-!(test (getSti (ASYMMETRIC_HEBBIAN_LINK target1 target2)) 0.0)
-!(test (getSti (INHERITANCE_LINK source target5)) 5038.35)
-!(test (getSti (INHERITANCE_LINK source target6)) 1198.35)
-!(test (getSti (ASYMMETRIC_HEBBIAN_LINK target2 target3)) 0.0)
-!(test (getSti (INHERITANCE_LINK target3 (ASYMMETRIC_HEBBIAN_LINK sorce target4))) 1920.6)
+;; Verification: Check sample links' STI
+!(getSti (INHERITANCE_LINK node_0 node_1))
+!(getSti (INHERITANCE_LINK node_0 node_2))
+!(getSti (INHERITANCE_LINK node_0 node_3))
+!(getSti (INHERITANCE_LINK node_400 node_401))
+!(getSti (INHERITANCE_LINK node_500 node_502))
+!(getSti (INHERITANCE_LINK node_998 node_999))
+!(getAfAtoms)
+!(diffusion with 50 cycle and 50af)
