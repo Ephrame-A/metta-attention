@@ -12,7 +12,7 @@
 !(import! &self ../../../../metta-attention/attention/HebbianUpdatingAgent/HebbianUpdatingAgent)
 !(import! &data ../../HebbianCreationAgent/HebbianCreationAgentTest/data)
 !(import! &data links)
-!(updateAttentionParam MAX_AF_SIZE 100)
+!(updateAttentionParam MAX_AF_SIZE 1)
 
 (= (run-cycles $num $time)
     (if (== $num 0) (running time is (- (py-call (time.time)) $time))
@@ -21,6 +21,9 @@
     )
 )
 
-!(match &data $pat (setStv $pat (0.1 0.9)))
+!(match &data $pat (setStv $pat (0.01 0.1)))
 !(stimulate node_0 1000)
 !(run-cycles 1 (py-call (time.time)))
+!(match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK node_0 node_100) $val) $val)
+
+

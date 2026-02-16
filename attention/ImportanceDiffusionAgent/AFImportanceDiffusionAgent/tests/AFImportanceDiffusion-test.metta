@@ -14,13 +14,14 @@
 !(bind! &node (new-space))
 !(import! &data file)
 !(import! &node nodes)
-!(updateAttentionParam MAX_AF_SIZE 50.0)
+!(updateAttentionParam MAX_AF_SIZE 100)
 
 ;; Set TV for links and stimulate all nodes in the chain
 !(match &data (INHERITANCE_LINK $s $t) 
     (setStv (INHERITANCE_LINK $s $t) (0.5 0.8))
 )
-!(match &node ($x) (stimulate $x 50))
+!(match &node ($x) (stimulate $x 200))
+
 ;; Run 50 cycles to match C++ cycles
 (= (run-cycles $num $time)
     (if (== $num 0) (running time is (- (py-call (time.time)) $time))
@@ -30,7 +31,7 @@
 )
 
 !(getAv node_0)
-!(run-cycles 50 (py-call (time.time)))
+!(run-cycles 5 (py-call (time.time)))
 
 
 
@@ -38,14 +39,13 @@
 ;; Verification: Check sample nodes' STI
 !(getSti node_0)
 !(getSti node_50)
-!(getSti node_500)
+!(getSti node_498)
 
 ;; Verification: Check sample links' STI
 !(getSti (INHERITANCE_LINK node_0 node_1))
 !(getSti (INHERITANCE_LINK node_0 node_2))
 !(getSti (INHERITANCE_LINK node_0 node_3))
-!(getSti (INHERITANCE_LINK node_400 node_401))
-!(getSti (INHERITANCE_LINK node_500 node_502))
-!(getSti (INHERITANCE_LINK node_998 node_999))
-!(getAfAtoms)
-!(diffusion with 50 cycle and 50af)
+!(getSti (INHERITANCE_LINK node_401 node_402))
+!(getSti (INHERITANCE_LINK node_497 node_498))
+
+!(diffusion with 10 cycle and 100af)

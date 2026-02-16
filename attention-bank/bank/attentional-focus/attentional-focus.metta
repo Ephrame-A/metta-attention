@@ -142,7 +142,7 @@
                 (index-atom $outsideAf 0) 
                   (let*
                   (
-                    ($rand (random-int 0 $size) )
+                    ($rand (random-int 0 (- $size 1)) )
                     ($singatom (index-atom $outsideAf $rand) )
                     ; ($in (println! (the result if inde atomm $singatom $outsideAf $rand)))
                    )
@@ -166,7 +166,7 @@
                 (index-atom $outsideAf 0) 
                 (let*
                     (
-                        ($rand (random-int 0 $size) )
+                        ($rand (random-int 0 (- $size 1)) )
                         ($singatom (index-atom $outsideAf $rand))
                     )
                     $singatom
@@ -194,13 +194,14 @@
 )
 
 (= (getRandomAtomInAF $atoms)
-    (if (== (size-atom $atoms) 0)
+    (let $s (size-atom $atoms)
+    (if (== $s 0)
         ()
         (let $rand 
-            (random-int 0 (size-atom $atoms))
+            (random-int 0 (- $s 1))
             (index-atom $atoms $rand)
         )
-    )
+    ))
 )
 ; Function: isAtomInAf
 ; Description: 
