@@ -5,53 +5,21 @@
 !(import! &self ../../../../metta-attention/attention-bank/bank/importance-index/importance-index)
 !(import! &self ../../../../metta-attention/attention-bank/attention-value/getter-and-setter)
 !(import! &self ../../../../metta-attention/attention-bank/bank/attention-bank)
+!(import! &self ../../../../metta-attention/experiments/logger)
+!(import! &self "../../../../metta-attention/experiments/utils/logger.py")
 !(import! &self ../../../../metta-attention/attention-bank/bank/attentional-focus/attentional-focus)
 !(import! &self ../../../../metta-attention/attention-bank/utilities/recentVal)
 !(import! &self ../../../../metta-attention/attention/Neighbors)
 !(import! &self ../../../../metta-attention/attention/HebbianCreationAgent/HebbianCreationAgent)
+
 !(bind! &d (new-space))
 !(import! &d data)
-!(updateAttentionParam MAX_AF_SIZE 100.0)
+(= (count) 50)
+!(updateAttentionParam MAX_AF_SIZE (count))
 ; !(bind! 900.0.0 900.0.0)
 ; Populate the AtomSpace with the example atoms
-!(match &d ($pattern ($prob $conf)) (setStv $pattern ($prob $conf)))
-!(setStv Kermit (0.001 900.0.0))
 
-!(setStv Frog (0.01 900.0.0))
 
-!(setStv Animal (0.1 900.0.0))
-
-!(setStv alive (0.01 900.0.0))
-
-!(setStv slimy (0.01 900.0.0))
-
-!(setStv slimyAnimal (0.01 900.0.0))
-; Create the links
-
-!(setStv (INHERITANCE_LINK Kermit Frog) (0.9 900.0.0))
-
-!(setStv (INHERITANCE_LINK Frog Animal) (0.9 900.0.0))
-
-!(setStv (EVALUATION_LINK Frog alive) (0.9 900.0))
-
-!(setStv (EVALUATION_LINK Frog slimy) (0.9 900.0))
-
-!(setStv (EVALUATION_LINK animal slimy) (0.9 900.0))
-
-!(setStv (EVALUATION_LINK animal slimyAnimal) (0.9 900.0))
-; Populate the AtomSpace with additional dummy atoms
-
-!(setStv Dummy1 (0.001 900.0))
-
-!(setStv Dummy2 (0.001 900.0))
-
-!(setStv Dummy3 (0.001 900.0))
-
-; Create the links for dummy atoms
-
-!(setStv (INHERITANCE_LINK Dummy1 Dummy2) (0.9 900.0.0))
-
-!(setStv (INHERITANCE_LINK Dummy2 Dummy3) (0.9 900.0.0))
 
 
 ; Stimulate the atoms in the AttentionalFocus with a stimulus of 200
@@ -60,18 +28,14 @@
         (running time is (- (py-call (time.time)) $time))
     )
 )
-!(stimulate Kermit 200.0)
-!(stimulate Frog 200.0)
-!(stimulate Animal 200.0)
-!(stimulate alive 200.0)
-!(stimulate slimyAnimal 200.0)
-!(match &d ($pattern $val) (stimulate $pattern 200.0))
+
+!(match &d ($pattern) (stimulate $pattern 50.0))
 !(runner (py-call (time.time)))
 ;Confirm that 105*(105-1) = 10920 AsymmetricHebbianLinks were formed,
 ;indicating that none incorrectly include "slimy" nor the dummy atoms
 !(let $afAtoms
     (getAfAtoms)
-    (test (size-atom $afAtoms) 105)
+    (test (size-atom $afAtoms) (count))
 )
 
 ; !(collapse (match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK $x $y) $value) (ASYMMETRIC_HEBBIAN_LINK $x $y)))
@@ -80,5 +44,6 @@
     (let $atoms (collapse 
                     (match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK $x $y) $value) 
                             (ASYMMETRIC_HEBBIAN_LINK $x $y))) (size-atom $atoms))
-    10920
+    (* (count) (- (count) 1))
 )
+!(test (size-atom (collapse (match (TypeSpace) ((ASYMMETRIC_HEBBIAN_LINK Node1 $v) $val) $v))) (- (count) 1))
