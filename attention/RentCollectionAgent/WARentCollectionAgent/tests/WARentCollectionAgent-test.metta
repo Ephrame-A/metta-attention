@@ -35,7 +35,7 @@
             ($x (collapse (WARentCollectionAgent-Run))) 
             ($gap (- (py-call (time.time)) $start))
             ($sleep (py-call (time.sleep 1)))
-            ($s (collapse (match &node ($x) (stimulate $x 5))))
+            ($s (collapse (match &node ($x) (stimulate $x 10))))
             )
         (run-cycles (- $num 1) (+ $init $gap)))
     )
