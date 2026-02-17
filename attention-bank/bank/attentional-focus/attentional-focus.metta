@@ -25,14 +25,6 @@
     )
 )
 
-; Function: const
-; Description: 
-;             - Returns a constant scaling factor used for the attentional focus buffer calculation.
-;             - This value adjusts the sensitivity of the buffer that decides whether to perform 
-;               sorting on the last STI bin.
-; Parameter: None
-; Return: A numeric value (0.7)
-(= (const) 0.7)
 
 ; Function: getAfAtomsHelper
 ; Description: 
@@ -61,26 +53,23 @@
             ; ($minimu (println! (return of min bin ($min $atomsList) )))
 
             ($remainSize (- $size (size-atom $atomsList))) ; calculate remaining number of atoms
-            ($buffer (* 1.8 (py-call (math.log $size))))
             ; ($remainSi (println! (size of the diff/remaining size $remainSize )))
-        )   (if (<= $remainSize (- $buffer 2))
-                $atomsList
-                (let*
-                    (($minAtomsSti (getAtomsByBin $min))
-                    ; ($minatom (println! (return of get atom by bin fn $minAtomsSti )))
-                    ($flag (> (- (size-atom $minAtomsSti) $remainSize) $buffer))
-                    ; ($m (println! (return of sorted atoms desc $sortedMinList )))
+            
+            ($minAtomsSti (getAtomsByBin $min))
+            ; ($minatom (println! (return of get atom by bin fn $minAtomsSti )))
+            ($sortedMinList (sortAtomsDescending $minAtomsSti getSti))
+            ; ($m (println! (return of sorted atoms desc $sortedMinList )))
 
-                    ($lastAtoms (if $flag 
-                                    (let $sortedMinList (sortAtomsDescending $minAtomsSti getSti) (getNatoms $sortedMinList $remainSize)); getting the first $size number of atoms
-                                    $minAtomsSti))
-                    ($afAtoms (union-atom $atomsList $lastAtoms))
-                    ; ($help (println! (inside get af atom helper $atomsList $lastAtoms $afAtoms)))
-                    ($wrote (write_csv_wrapper $afAtoms)) ; log to csv if logger is configured via start_log
-                ) 
-                $afAtoms)
+            ($lastAtoms (getNatoms $sortedMinList $remainSize)); getting the first $size number of atoms
+            ; ($getn (println! (return of get $remainSize atoms $lastAtoms )))
+
+            ($afAtoms (union-atom $atomsList $lastAtoms))
+            ; ($help (println! (inside get af atom helper $atomsList $lastAtoms $afAtoms)))
+            ($wrote (write_csv_wrapper $afAtoms)) ; log to csv if logger is configured via start_log
+        ) 
+       $afAtoms 
     )
-))
+)
 
 ; Function: minBin
 ; Description: 
@@ -142,7 +131,7 @@
                 (index-atom $outsideAf 0) 
                   (let*
                   (
-                    ($rand (random-int 0 (- $size 1)) )
+                    ($rand (random-int 0 (- $size 1) ))
                     ($singatom (index-atom $outsideAf $rand) )
                     ; ($in (println! (the result if inde atomm $singatom $outsideAf $rand)))
                    )
@@ -166,7 +155,7 @@
                 (index-atom $outsideAf 0) 
                 (let*
                     (
-                        ($rand (random-int 0 (- $size 1)) )
+                        ($rand (random-int 0 (- $size 1) ))
                         ($singatom (index-atom $outsideAf $rand))
                     )
                     $singatom
@@ -185,23 +174,25 @@
 (= (getRandomAtomInAF)
     (let $atoms 
             (getAfAtoms)
-            (if (== (size-atom $atoms) 0)
-                ()
-            (let $rand (random-int 0 (size-atom $atoms))
-            (index-atom $atoms $rand)))
+            (let $size (size-atom $atoms)
+                (if (== $size 0)
+                    ()
+                (let $rand (random-int 0 (- $size 1)))
+                (index-atom $atoms $rand))))
     
-    )
+    
 )
 
 (= (getRandomAtomInAF $atoms)
-    (let $s (size-atom $atoms)
-    (if (== $s 0)
-        ()
-        (let $rand 
-            (random-int 0 (- $s 1))
-            (index-atom $atoms $rand)
+    (let $size (size-atom $atoms) 
+        (if (== $size 0)
+            ()
+            (let $rand 
+                (random-int 0 (- $size 1))
+                (index-atom $atoms $rand)
+            )
         )
-    ))
+    )
 )
 ; Function: isAtomInAf
 ; Description: 
