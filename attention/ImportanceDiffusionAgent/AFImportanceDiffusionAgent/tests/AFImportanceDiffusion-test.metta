@@ -86,4 +86,4 @@
 !(test (getSti (INHERITANCE_LINK source target5)) 5038.35)
 !(test (getSti (INHERITANCE_LINK source target6)) 1198.35)
 !(test (getSti (ASYMMETRIC_HEBBIAN_LINK target2 target3)) 0.0)
-!(test (getSti (INHERITANCE_LINK target3 (ASYMMETRIC_HEBBIAN_LINK sorce target4))) 1920.6)
+!(test (getSti (INHERITANCE_LINK target3 (ASYMMETRIC_HEBBIAN_LINK sorce target4))) 190.6)
